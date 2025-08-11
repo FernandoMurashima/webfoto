@@ -1,0 +1,47 @@
+.hero {
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 6vw, 5rem) 1rem;
+  background: linear-gradient(180deg, #111 0%, #1a1a1a 100%);
+  color: #fff;
+  border-radius: 0 0 18px 18px;
+}
+
+.hero__inner {
+  max-width: 920px;
+  text-align: center;
+}
+
+h1 {
+  font-size: clamp(1.6rem, 4.8vw, 2.4rem);
+  margin: 0 0 .5rem;
+  letter-spacing: .02em;
+}
+
+p {
+  margin: 0 0 1.25rem;
+  opacity: .9;
+}
+
+.hero__actions {
+  display: flex;
+  gap: .75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: .75rem 1.1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: #fff;
+  outline: 1px solid #fff;
+}

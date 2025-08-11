@@ -1,0 +1,12 @@
+.wrap {
+  max-width: 960px;
+  margin: 1.25rem auto;
+  padding: 0 1rem;
+}
+
+h2 { margin: 0 0 .5rem; }
+
+.bullets {
+  margin: .75rem 0 0;
+  padding-left: 1.1rem;
+}

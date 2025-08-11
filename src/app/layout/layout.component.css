@@ -1,0 +1,118 @@
+* { box-sizing: border-box; }
+
+.page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  background: #fafafa;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  background: #111;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.brand { font-weight: 600; letter-spacing: .08em; }
+
+.nav-desktop { display: none; gap: 1rem; }
+.nav-desktop a { color: #fff; text-decoration: none; opacity: .9; }
+.nav-desktop a:hover { opacity: 1; }
+
+.menu-btn {
+  background: none; border: none; color: #fff;
+  font-size: 1.4rem; line-height: 1; cursor: pointer;
+}
+
+/* Menu mobile básico */
+.nav-mobile {
+  display: none;
+  flex-direction: column;
+  background: #1b1b1b;
+}
+.nav-mobile.aberto { display: flex; }
+.nav-mobile a {
+  color: #fff; text-decoration: none; padding: .9rem 1rem; border-top: 1px solid #2a2a2a;
+}
+
+/* Banner horizontal de funcionalidades */
+.feature-banner {
+  background: #141414;
+  border-bottom: 1px solid #222;
+}
+.feature-wrap {
+  width: min(1100px, 100%);
+  margin-inline: auto;
+  display: flex;
+  gap: .5rem;
+  padding: .55rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.feature-link {
+  color: #fff;
+  text-decoration: none;
+  padding: .5rem .9rem;
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+  white-space: nowrap;
+}
+.feature-link:hover { background: #1e1e1e; }
+
+/* Conteúdo */
+.content {
+  width: min(1100px, 100%);
+  margin-inline: auto;
+  padding: 1rem;
+}
+
+/* Rodapé */
+.footer {
+  background: #111;
+  color: #ccc;
+}
+.footer-wrap {
+  width: min(1100px, 100%);
+  margin-inline: auto;
+  padding: 1rem;
+  display: grid;
+  gap: .75rem;
+  align-items: center;
+}
+.brand-mini { font-size: .9rem; }
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+}
+.contato {
+  display: inline-block;
+  padding: .45rem .8rem;
+  background: #1b1b1b;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: .95rem;
+  border: 1px solid #2a2a2a;
+}
+.contato:hover { background: #262626; }
+
+@media (min-width: 768px) {
+  .nav-desktop { display: flex; }
+  .menu-btn { display: none; }
+  .nav-mobile { display: none !important; }
+  .topbar { padding: 1rem 2rem; }
+
+  .footer-wrap {
+    grid-template-columns: 1fr auto;
+  }
+}

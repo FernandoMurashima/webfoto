@@ -1,0 +1,50 @@
+<div class="page">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="brand">MAYARA MURASHIMA</div>
+
+    <nav class="nav-desktop">
+      <a routerLink="">Home</a>
+      <a routerLink="sobre">Sobre</a>
+      <!-- Contato saiu do topo; fica no rodapé agora -->
+    </nav>
+
+    <button class="menu-btn" (click)="menuAberto = !menuAberto" aria-label="Abrir menu">
+      ☰
+    </button>
+  </header>
+
+  <!-- Menu mobile (básico para navegação principal) -->
+  <nav class="nav-mobile" [class.aberto]="menuAberto">
+    <a routerLink="" (click)="menuAberto=false">Home</a>
+    <a routerLink="sobre" (click)="menuAberto=false">Sobre</a>
+    <a routerLink="trabalhos" (click)="menuAberto=false">Trabalhos</a>
+    <a routerLink="orcamento" (click)="menuAberto=false">Orçamento</a>
+  </nav>
+
+  <!-- Banner horizontal de funcionalidades -->
+  <div class="feature-banner">
+    <div class="feature-wrap">
+      <a routerLink="trabalhos" class="feature-link">Trabalhos</a>
+      <a routerLink="orcamento" class="feature-link">Orçamento</a>
+    </div>
+  </div>
+
+  <!-- Conteúdo -->
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Rodapé com contatos -->
+  <footer class="footer">
+    <div class="footer-wrap">
+      <div class="brand-mini">© {{ currentYear }} Mayara Murashima</div>
+
+      <div class="contacts">
+        <a class="contato" href="https://wa.me/5521999060204" target="_blank" rel="noopener">📞 WhatsApp</a>
+        <a class="contato" href="mailto:may.casmurashima@gmail.com" target="_blank" rel="noopener">✉️ Email</a>
+        <a class="contato" href="https://www.instagram.com/may.murashima" target="_blank" rel="noopener">📷 Instagram</a>
+      </div>
+    </div>
+  </footer>
+</div>
