@@ -11,15 +11,17 @@
     <form #f="ngForm" (ngSubmit)="solicitarOrcamento()">
       <div class="principal">
 
+        <!-- Linha 1 -->
         <div class="field-group">
-          <div class="input-item" id="nome-requisitante-box">
+          <div class="input-item col-8" id="nome-requisitante-box">
             <label for="nome_requisitante">Nome do Requisitante:</label>
-            <input class="input-caixa" type="text" id="nome_requisitante" name="nome_requisitante" [(ngModel)]="nome_requisitante" required maxlength="255">
+            <input class="input-caixa h-md" type="text" id="nome_requisitante" name="nome_requisitante"
+                   [(ngModel)]="nome_requisitante" required maxlength="100">
           </div>
 
-          <div class="input-item" id="tipo-evento-box">
+          <div class="input-item col-4" id="tipo-evento-box">
             <label for="tipo_evento">Tipo de Evento:</label>
-            <select class="input-caixa" id="tipo_evento" name="tipo_evento" [(ngModel)]="tipo_evento" required>
+            <select class="input-caixa h-md" id="tipo_evento" name="tipo_evento" [(ngModel)]="tipo_evento" required>
               <option value="" disabled selected>Selecione</option>
               <option>Aniversário</option>
               <option>Casamento</option>
@@ -30,77 +32,86 @@
           </div>
         </div>
 
+        <!-- Linha 2 -->
         <div class="field-group5">
-          <div class="input-item" id="data-desejada-box">
+          <div class="input-item col-3" id="data-desejada-box">
             <label for="data_desejada">Data Desejada:</label>
-            <input class="input-caixa" type="date" id="data_desejada" name="data_desejada" [(ngModel)]="data_desejada" required>
+            <input class="input-caixa h-md" type="date" id="data_desejada" name="data_desejada"
+                   [(ngModel)]="data_desejada" required>
           </div>
-          <div class="input-item" id="horario-box">
+          <div class="input-item col-3" id="horario-box">
             <label for="horario">Horário:</label>
-            <input class="input-caixa" type="time" id="horario" name="horario" [(ngModel)]="horario">
+            <input class="input-caixa h-md" type="time" id="horario" name="horario" [(ngModel)]="horario">
           </div>
-          <div class="input-item" id="quantidade-box">
+          <div class="input-item col-3" id="quantidade-box">
             <label for="quantidade_pessoas">Pessoas:</label>
-            <input class="input-caixa" type="number" id="quantidade_pessoas" name="quantidade_pessoas" [(ngModel)]="quantidade_pessoas" min="1" required>
+            <input class="input-caixa h-md" type="number" id="quantidade_pessoas" name="quantidade_pessoas"
+                   [(ngModel)]="quantidade_pessoas" min="1" required>
           </div>
-          <div class="input-item" id="duracao-box">
+          <div class="input-item col-3" id="duracao-box">
             <label for="duracao_horas">Duração Estimada (horas):</label>
-            <input class="input-caixa" type="number" id="duracao_horas" name="duracao_horas" [(ngModel)]="duracao_horas" step="0.5">
+            <input class="input-caixa h-md" type="number" id="duracao_horas" name="duracao_horas"
+                   [(ngModel)]="duracao_horas" step="0.5">
           </div>
         </div>
 
-        <div class="input-item" id="descricao-box">
+        <!-- Linha 3 (Descrição) -->
+        <div class="input-item col-12" id="descricao-box">
           <label for="descricao">Descrição:</label>
-          <textarea class="input-caixa" id="descricao" name="descricao" [(ngModel)]="descricao" rows="4"></textarea>
+          <textarea class="input-caixa ta-md" id="descricao" name="descricao" [(ngModel)]="descricao"></textarea>
         </div>
 
+        <!-- Linha 4 (Endereço 1) -->
         <div class="field-group2">
-          <div class="input-item" id="logradouro-box">
+          <div class="input-item col-6" id="logradouro-box">
             <label for="logradouro">Logradouro:</label>
-            <input class="input-caixa" type="text" id="logradouro" name="logradouro" [(ngModel)]="logradouro" maxlength="100">
+            <input class="input-caixa" type="text" id="logradouro" name="logradouro"
+                   [(ngModel)]="logradouro" maxlength="100">
           </div>
-          <div class="input-item" id="numero-box">
+          <div class="input-item col-2" id="numero-box">
             <label for="numero">Número:</label>
             <input class="input-caixa" type="text" id="numero" name="numero" [(ngModel)]="numero" maxlength="10">
           </div>
-          <div class="input-item" id="complemento-box">
+          <div class="input-item col-4" id="complemento-box">
             <label for="complemento">Complemento:</label>
-            <input class="input-caixa" type="text" id="complemento" name="complemento" [(ngModel)]="complemento" maxlength="50">
+            <input class="input-caixa" type="text" id="complemento" name="complemento"
+                   [(ngModel)]="complemento" maxlength="50">
           </div>
         </div>
 
+        <!-- Linha 5 (Endereço 2) -->
         <div class="field-group3">
-          <div class="input-item" id="bairro-box">
+          <div class="input-item col-4" id="bairro-box">
             <label for="bairro">Bairro:</label>
             <input class="input-caixa" type="text" id="bairro" name="bairro" [(ngModel)]="bairro" maxlength="30">
           </div>
-          <div class="input-item" id="cidade-box">
+          <div class="input-item col-4" id="cidade-box">
             <label for="cidade">Cidade:</label>
             <input class="input-caixa" type="text" id="cidade" name="cidade" [(ngModel)]="cidade" maxlength="50">
           </div>
-          <div class="input-item" id="estado-box">
+          <div class="input-item col-2" id="estado-box">
             <label for="estado">Estado:</label>
             <input class="input-caixa" type="text" id="estado" name="estado" [(ngModel)]="estado" maxlength="2">
           </div>
-          <div class="input-item" id="cep-box">
+          <div class="input-item col-2" id="cep-box">
             <label for="cep">CEP:</label>
             <input class="input-caixa" type="text" id="cep" name="cep" [(ngModel)]="cep" maxlength="10">
           </div>
         </div>
 
+        <!-- Linha 6 (Contato) -->
         <div class="field-group4">
-          <div class="input-item" id="celular-box">
+          <div class="input-item col-6" id="celular-box">
             <label for="celular">Celular:</label>
             <input class="input-caixa" type="text" id="celular" name="celular" [(ngModel)]="celular" maxlength="20">
           </div>
-          <div class="input-item" id="email-box">
+          <div class="input-item col-6" id="email-box">
             <label for="email">Email:</label>
             <input class="input-caixa" type="email" id="email" name="email" [(ngModel)]="email" maxlength="100">
           </div>
         </div>
 
         <div id="success-message" *ngIf="mensagem">{{ mensagem }}</div>
-
       </div>
 
       <div class="btn01">

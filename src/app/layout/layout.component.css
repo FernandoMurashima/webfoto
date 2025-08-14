@@ -1,3 +1,6 @@
+/* NOVO: Fonte para o brand (pode trocar por Poppins, Inter, etc.) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap'); /* NOVO */
+
 /* ==================== */
 /* Paleta e utilidades  */
 /* ==================== */
@@ -51,9 +54,9 @@ body { margin: 0; color: var(--ink); background: var(--bg-page-start); }
   align-items: center;
   justify-content: space-between;
 
-  min-height: 56px;
-  padding: 0.8rem 1rem;
-  color: #bd0f0f;
+  min-height: 64px;   /* ALTERADO (antes 56px) */
+  padding: 1rem 1.25rem; /* ALTERADO (antes 0.8rem 1rem) */
+  color: #f8f5f5;
   background: linear-gradient(180deg, var(--top-start), var(--top-end));
   border-bottom: 1px solid rgba(255,255,255,.08);
   box-shadow: 0 2px 10px rgba(0,0,0,.18);
@@ -64,8 +67,11 @@ body { margin: 0; color: var(--ink); background: var(--bg-page-start); }
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-weight: 700;
-  letter-spacing: .08em;
+  font-size: clamp(22px, 3.8vw, 44px); /* NOVO: tamanho responsivo maior */
+  font-weight: 800;                    /* ALTERADO (antes 700) */
+  letter-spacing: .10em;               /* ALTERADO (antes .08em) */
+  color: #fff;                         /* NOVO: garante contraste do brand */
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; /* NOVO: troca de fonte */
   text-transform: uppercase;
   white-space: nowrap;
   text-shadow: 0 1px 0 rgba(0,0,0,.25);
@@ -174,7 +180,7 @@ body { margin: 0; color: var(--ink); background: var(--bg-page-start); }
   .nav-desktop { display: flex; }
   .menu-btn { display: none; }
   .nav-mobile { display: none !important; }
-  .topbar { padding: 1rem 2rem; }
+  .topbar { padding: 1rem 2rem; } /* (mantido) */
 
   .footer-wrap {
     grid-template-columns: 1fr auto;

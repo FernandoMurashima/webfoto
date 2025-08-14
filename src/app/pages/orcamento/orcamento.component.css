@@ -1,82 +1,112 @@
-/* Container e banner */
-.container { max-width: 980px; margin: 0 auto; padding: 0 1rem; }
-.mt-3 { margin-top: 1rem; }
-
-.banner {
-  margin: .5rem 0 1rem;
-  padding: .75rem 1rem;
-  background: #111; color: #fff;
-  text-align: center; border-radius: 10px;
-  font-weight: 600; letter-spacing: .04em;
+/* ===== Layout do topo da página do orçamento (opcional) ===== */
+.banner{
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: .05em;
+  margin-bottom: .75rem;
+  color: #fff;
 }
+.btn-voltar { margin: .5rem 0 1rem; }
 
-/* Voltar */
-.btn-voltar { margin-bottom: .75rem; }
-.btn.btn-secondary { background: #e9e9e9; color: #111; }
-
-/* Moldura do formulário */
-.form-box {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 12px;
+/* ===== Caixa do formulário ===== */
+.form-box{
+  max-width: 980px;
+  margin: 0 auto 2rem;
   padding: 1rem;
-  box-shadow: 0 6px 20px rgba(0,0,0,.05);
+  border-radius: 14px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.14);
+  color: #fff;
 }
 
-/* Grids responsivos */
-.principal { display: grid; gap: .9rem; }
+label{
+  display: block;
+  margin: 0 0 .35rem;
+  font-weight: 600;
+  opacity: .95;
+}
 
+/* ===== Grade de 12 colunas ===== */
 .field-group,
 .field-group2,
 .field-group3,
 .field-group4,
 .field-group5 {
   display: grid;
-  gap: .75rem;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-@media (min-width: 640px) {
-  .field-group { grid-template-columns: 1fr 1fr; }
-  .field-group2 { grid-template-columns: 2fr 1fr 1fr; }
-  .field-group3 { grid-template-columns: 1fr 1fr 80px 1fr; }
-  .field-group4 { grid-template-columns: 1fr 1fr; }
-  .field-group5 { grid-template-columns: repeat(4, 1fr); }
-}
+/* Utilitários de largura para .input-item */
+.col-12 { grid-column: span 12; }
+.col-8  { grid-column: span 8; }
+.col-6  { grid-column: span 6; }
+.col-4  { grid-column: span 4; }
+.col-3  { grid-column: span 3; }
+.col-2  { grid-column: span 2; }
 
-/* Campos */
-.input-item { display: grid; gap: .35rem; }
-label { font-size: .95rem; color: #333; }
-
-.input-caixa {
+/* Campos ocupam 100% da coluna */
+.input-item .input-caixa,
+.input-item select,
+.input-item textarea {
   width: 100%;
-  padding: .65rem .75rem;
-  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+/* Estilo e altura dos campos */
+.input-caixa,
+select {
+  height: 40px;                 /* altura padrão do input */
+  padding: 8px 10px;
   border-radius: 8px;
-  background: #fff;
-  outline: none;
-}
-.input-caixa:focus {
-  border-color: #111;
-  box-shadow: 0 0 0 3px rgba(0,0,0,.07);
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(0,0,0,.25);
+  color: #fff;
 }
 
-/* Botões */
-.btn01 { display: flex; gap: .6rem; margin-top: 1rem; }
-.btn {
-  display: inline-block; border: none; cursor: pointer;
-  padding: .75rem 1rem; border-radius: 10px;
-  font-weight: 600; text-decoration: none; text-align: center;
+/* Textarea ignora 'rows' e usa min-height */
+textarea.input-caixa {
+  min-height: 120px;            /* altura padrão do textarea */
+  resize: vertical;
 }
-.btn-primary { background: #111; color: #fff; }
-.btn-primary:hover { background: #222; }
-.btn-secondary { border: 1px solid #ddd; }
 
-/* Mensagem */
-#success-message {
+/* Helpers de altura rápida */
+.h-sm { height: 36px !important; }
+.h-md { height: 44px !important; }
+.h-lg { height: 52px !important; }
+
+.ta-sm { min-height: 90px !important; }
+.ta-md { min-height: 140px !important; }
+.ta-lg { min-height: 200px !important; }
+
+/* Mensagem de sucesso/erro */
+#success-message{
   margin-top: .5rem;
-  color: #1a7f37;
-  background: #eaf7ee;
-  border: 1px solid #c7ead3;
-  padding: .6rem .8rem;
+  padding: .5rem .75rem;
   border-radius: 8px;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+/* Ações */
+.btn01{
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 640px) {
+  .field-group,
+  .field-group2,
+  .field-group3,
+  .field-group4,
+  .field-group5 {
+    grid-template-columns: 1fr;
+  }
+  .col-12, .col-8, .col-6, .col-4, .col-3, .col-2 {
+    grid-column: 1 / -1;
+  }
 }
