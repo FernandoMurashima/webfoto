@@ -1,12 +1,24 @@
-.wrap {
-  max-width: 960px;
-  margin: 1.25rem auto;
-  padding: 0 1rem;
+.sobre-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px 30px;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  border: 2px solid #563174;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-h2 { margin: 0 0 .5rem; }
+.titulo {
+  text-align: center;
+  font-size: 28px;
+  color: #563174;
+  margin-bottom: 25px;
+}
 
-.bullets {
-  margin: .75rem 0 0;
-  padding-left: 1.1rem;
+.texto p {
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: justify;
 }

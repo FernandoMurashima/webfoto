@@ -1,52 +1,111 @@
-* { box-sizing: border-box; }
+/* ==================== */
+/* Paleta e utilidades  */
+/* ==================== */
+:root{
+  /* fundo claro e suave da página */
+  --bg-page-start: #33b1a0;  /* mais claro */
+  --bg-page-end:   #e9edf7;  /* um pouco mais escuro */
+  --ink: #0f1320;
 
+  /* gradientes no lugar do preto */
+  --top-start:    #0f1420;
+  --top-end:      #1a2130;
+
+  --banner-start: #141a22;
+  --banner-end:   #1b2330;
+
+  --chip-border:  #2a3342;
+  --chip-bg:      #111822;
+  --chip-hover:   #172031;
+
+  --content-edge: rgba(30, 37, 53, .07);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; color: var(--ink); background: var(--bg-page-start); }
+
+/* ====== Página com fundo suave (mais visível) ====== */
 .page {
   min-height: 100svh;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
-  background: #fafafa;
+
+  /* overlay escuro leve para dar leitura ao conteúdo */
+  background:
+    linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)),
+    url("../../assets/fotofundo.png") center / cover no-repeat;
+  /* se quiser efeito parallax em desktop, ative a linha abaixo
+     (lembre que iOS ignora fixed) */
+  /* background-attachment: fixed; */
 }
 
-/* Topbar */
+/* ====== Topbar com brand centralizado ====== */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  position: relative;                   /* para centralizar o brand */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: .75rem;
-  padding: .75rem 1rem;
-  background: #111;
-  color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 20;
+
+  min-height: 56px;
+  padding: 0.8rem 1rem;
+  color: #bd0f0f;
+  background: linear-gradient(180deg, var(--top-start), var(--top-end));
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 2px 10px rgba(0,0,0,.18);
 }
 
-.brand { font-weight: 600; letter-spacing: .08em; }
+/* brand fixo no meio do header (independente dos lados) */
+.brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+
+/* áreas laterais */
+.menu-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,.22);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: .35rem .6rem;
+}
 
 .nav-desktop { display: none; gap: 1rem; }
 .nav-desktop a { color: #fff; text-decoration: none; opacity: .9; }
-.nav-desktop a:hover { opacity: 1; }
+.nav-desktop a.active,
+.nav-desktop a:hover { opacity: 1; text-decoration: underline; }
 
-.menu-btn {
-  background: none; border: none; color: #fff;
-  font-size: 1.4rem; line-height: 1; cursor: pointer;
-}
-
-/* Menu mobile básico */
+/* ====== Menu mobile ====== */
 .nav-mobile {
   display: none;
   flex-direction: column;
-  background: #1b1b1b;
+  background: linear-gradient(180deg, var(--top-end), #0f141d);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .nav-mobile.aberto { display: flex; }
 .nav-mobile a {
-  color: #fff; text-decoration: none; padding: .9rem 1rem; border-top: 1px solid #2a2a2a;
+  color: #fff; text-decoration: none;
+  padding: .9rem 1rem; border-top: 1px solid rgba(255,255,255,.06);
 }
+.nav-mobile a.active { background: rgba(250, 247, 245, 0.06); }
 
-/* Banner horizontal de funcionalidades */
+/* ====== Banner horizontal ====== */
 .feature-banner {
-  background: #141414;
-  border-bottom: 1px solid #222;
+  background: linear-gradient(180deg, var(--banner-start), var(--banner-end));
+  border-bottom: 1px solid rgba(255,255,255,.06);
 }
 .feature-wrap {
   width: min(1100px, 100%);
@@ -58,26 +117,30 @@
   scrollbar-width: thin;
 }
 .feature-link {
-  color: #fff;
+  color: #eef2f3;
   text-decoration: none;
   padding: .5rem .9rem;
   border-radius: 999px;
-  border: 1px solid #2a2a2a;
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
   white-space: nowrap;
 }
-.feature-link:hover { background: #1e1e1e; }
+.feature-link:hover { background: var(--chip-hover); }
 
-/* Conteúdo */
+/* ====== Conteúdo ====== */
 .content {
   width: min(1100px, 100%);
   margin-inline: auto;
   padding: 1rem;
+  box-shadow: 0 1px 0 var(--content-edge) inset, 0 -1px 0 var(--content-edge) inset;
 }
 
-/* Rodapé */
+/* ====== Rodapé ====== */
 .footer {
-  background: #111;
-  color: #ccc;
+  color: #0735a0;
+  background: linear-gradient(180deg, var(--top-end), var(--top-start));
+  border-top: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 -2px 10px rgba(0,0,0,.12) inset;
 }
 .footer-wrap {
   width: min(1100px, 100%);
@@ -97,15 +160,16 @@
 .contato {
   display: inline-block;
   padding: .45rem .8rem;
-  background: #1b1b1b;
-  color: #fff;
+  background: rgba(255,255,255,.06);
+  color: #420b9c;
   text-decoration: none;
   border-radius: 10px;
   font-size: .95rem;
-  border: 1px solid #2a2a2a;
+  border: 1px solid rgba(255,255,255,.14);
 }
-.contato:hover { background: #262626; }
+.contato:hover { background: rgba(255,255,255,.12); }
 
+/* ====== Desktop ====== */
 @media (min-width: 768px) {
   .nav-desktop { display: flex; }
   .menu-btn { display: none; }

@@ -1,5 +1,48 @@
 .wrap {
-  max-width: 960px;
-  margin: 1.25rem auto;
+  width: min(1100px, 100%);
+  margin: 1rem auto 2rem;
   padding: 0 1rem;
+  color: #fff; /* combina com seu layout atual */
+}
+
+h2 { margin: 0 0 1rem; font-weight: 700; letter-spacing: .02em; }
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.tile {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  display: block;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.25);
+}
+.tile img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05);
+  transition: transform .35s ease, filter .35s ease;
+}
+.tile:hover img {
+  transform: scale(1.04);
+  filter: saturate(1.15);
+}
+.legend {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: .6rem .9rem;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0,0,0,.6), rgba(0,0,0,0));
+  font-weight: 600;
+  text-align: center;
 }

@@ -1,47 +1,71 @@
-.hero {
+/* ===== Ajustes fáceis ===== */
+:root{
+  --collage-max-width: 900px;  /* largura total da colagem (reduz pra ficar menor) */
+  --row-h: 12px;               /* altura da linha-base: quanto menor, menor tudo */
+  --gap: 10px;
+}
+
+/* Área da colagem */
+.home-collage{
+  width: min(var(--collage-max-width), 100%);
+  margin: 1rem auto 2rem;
+  padding: 0 1rem;
+
+  /* GRADE FIXA: mantém o mosaico */
   display: grid;
-  place-items: center;
-  padding: clamp(2rem, 6vw, 5rem) 1rem;
-  background: linear-gradient(180deg, #111 0%, #1a1a1a 100%);
-  color: #fff;
-  border-radius: 0 0 18px 18px;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(40, var(--row-h)); /* várias linhas-base fixas */
+  gap: var(--gap);
 }
 
-.hero__inner {
-  max-width: 920px;
-  text-align: center;
+/* Cartões */
+.tile{
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: rgba(0,0,0,.25);
+  box-shadow: 0 4px 18px rgba(0,0,0,.22);
+}
+.tile img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* preenche o bloco mantendo o recorte bonito */
+  display: block;
+  transition: transform .35s ease;
+}
+.tile:hover img{ transform: scale(1.03); }
+
+/* ===== Layout assimétrico (desktop) ===== */
+/* A: esquerda (alta) */
+.tile-a{ grid-column: 1 / span 3; grid-row: 1  / span 20; }
+
+/* B: embaixo à direita */
+.tile-b{ grid-column: 4 / span 3; grid-row: 14 / span 12; }
+
+/* C: central embaixo */
+.tile-c{ grid-column: 2 / span 3; grid-row: 26 / span 10; }
+
+/* ===== Responsivo ===== */
+@media (max-width: 900px){
+  .home-collage{
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(44, calc(var(--row-h) - 2px));
+  }
+  .tile-a{ grid-column: 1 / span 3; grid-row: 1  / span 20; }
+  .tile-b{ grid-column: 2 / span 3; grid-row: 18 / span 12; }
+  .tile-c{ grid-column: 1 / span 4; grid-row: 30 / span 10; }
 }
 
-h1 {
-  font-size: clamp(1.6rem, 4.8vw, 2.4rem);
-  margin: 0 0 .5rem;
-  letter-spacing: .02em;
-}
-
-p {
-  margin: 0 0 1.25rem;
-  opacity: .9;
-}
-
-.hero__actions {
-  display: flex;
-  gap: .75rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn {
-  display: inline-block;
-  padding: .75rem 1.1rem;
-  border-radius: 999px;
-  background: #fff;
-  color: #111;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.btn--ghost {
-  background: transparent;
-  color: #fff;
-  outline: 1px solid #fff;
+/* Mobile: empilha mantendo proporção agradável */
+@media (max-width: 560px){
+  .home-collage{
+    grid-template-columns: 1fr;
+    grid-template-rows: none;  /* deixa fluir */
+    gap: calc(var(--gap) - 2px);
+  }
+  .tile{ aspect-ratio: 4 / 3; } /* só no mobile pra simplificar */
+  .tile-a, .tile-b, .tile-c{
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
 }

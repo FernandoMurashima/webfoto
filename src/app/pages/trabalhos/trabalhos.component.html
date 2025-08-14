@@ -1,5 +1,20 @@
 <section class="wrap">
   <h2>Trabalhos</h2>
-  <p>Em breve: portfólio e categorias de ensaios.</p>
-</section>
 
+  <div class="grid">
+    <a class="tile" [routerLink]="['/trabalhos','aniversarios']">
+      <img src="assets/trabalhos/covers/aniversarios.jpg" alt="Aniversários" loading="lazy">
+      <span class="legend">Aniversários</span>
+    </a>
+
+    <a class="tile" [routerLink]="['/trabalhos','cha-revelacao']">
+      <img src="assets/trabalhos/covers/cha-revelacao.jpg" alt="Chá Revelação" loading="lazy">
+      <span class="legend">Chá Revelação</span>
+    </a>
+
+    <a class="tile" [routerLink]="['/trabalhos','batizado']">
+      <img src="assets/trabalhos/covers/batizado.jpg" alt="Batizado" loading="lazy">
+      <span class="legend">Batizado</span>
+    </a>
+  </div>
+</section>

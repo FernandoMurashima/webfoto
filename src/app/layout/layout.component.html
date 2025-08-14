@@ -1,32 +1,36 @@
 <div class="page">
-  <!-- Topbar -->
+  <!-- Topbar com brand centralizado -->
   <header class="topbar">
+    <!-- Botão do menu (mobile) fica à esquerda -->
+    <button class="menu-btn" (click)="menuAberto = !menuAberto" aria-label="Abrir menu">☰</button>
+
+    <!-- Brand sempre centralizado -->
     <div class="brand">MAYARA MURASHIMA</div>
 
-    <nav class="nav-desktop">
-      <a routerLink="">Home</a>
-      <a routerLink="sobre">Sobre</a>
-      <!-- Contato saiu do topo; fica no rodapé agora -->
-    </nav>
-
-    <button class="menu-btn" (click)="menuAberto = !menuAberto" aria-label="Abrir menu">
-      ☰
-    </button>
+    <!-- Navegação desktop à direita -->
+   <!--  <nav class="nav-desktop">
+      <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a routerLink="sobre" routerLinkActive="active">Sobre</a>
+      <a routerLink="trabalhos" routerLinkActive="active">Trabalhos</a>
+      <a routerLink="orcamento" routerLinkActive="active">Orçamento</a>
+    </nav> -->
   </header>
 
-  <!-- Menu mobile (básico para navegação principal) -->
+  <!-- Menu mobile -->
   <nav class="nav-mobile" [class.aberto]="menuAberto">
-    <a routerLink="" (click)="menuAberto=false">Home</a>
-    <a routerLink="sobre" (click)="menuAberto=false">Sobre</a>
-    <a routerLink="trabalhos" (click)="menuAberto=false">Trabalhos</a>
-    <a routerLink="orcamento" (click)="menuAberto=false">Orçamento</a>
+    <a routerLink="" (click)="menuAberto=false" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+    <a routerLink="sobre" (click)="menuAberto=false" routerLinkActive="active">Sobre</a>
+    <a routerLink="trabalhos" (click)="menuAberto=false" routerLinkActive="active">Trabalhos</a>
+    <a routerLink="orcamento" (click)="menuAberto=false" routerLinkActive="active">Orçamento</a>
   </nav>
 
-  <!-- Banner horizontal de funcionalidades -->
+    <!-- Banner horizontal (funcionalidades) -->
   <div class="feature-banner">
     <div class="feature-wrap">
-      <a routerLink="trabalhos" class="feature-link">Trabalhos</a>
-      <a routerLink="orcamento" class="feature-link">Orçamento</a>
+      <a class="feature-link" routerLink="" (click)="menuAberto=false" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+      <a class="feature-link" routerLink="sobre" (click)="menuAberto=false" routerLinkActive="active">Sobre</a>
+      <a class="feature-link" routerLink="trabalhos" (click)="menuAberto=false" routerLinkActive="active">Trabalhos</a>
+      <a class="feature-link" routerLink="orcamento" (click)="menuAberto=false" routerLinkActive="active">Orçamento</a>
     </div>
   </div>
 
