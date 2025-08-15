@@ -1,20 +1,30 @@
-<section class="wrap">
-  <h2>Trabalhos</h2>
+<div class="wrap trabalhos">
+  <!-- Cabeçalho com botão Voltar para Home -->
+  <div class="header">
+    <button type="button" class="back-btn" routerLink="/" aria-label="Voltar para Home">
+      ← Voltar
+    </button>
+    <!-- Se quiser mostrar o título, descomente a linha abaixo -->
+    <!-- <h1 class="title">Trabalhos</h1> -->
+  </div>
 
-  <div class="grid">
-    <a class="tile" [routerLink]="['/trabalhos','aniversarios']">
-      <img src="assets/trabalhos/covers/aniversarios.jpg" alt="Aniversários" loading="lazy">
-      <span class="legend">Aniversários</span>
+  <div class="cards">
+    <!-- ANIVERSÁRIOS -->
+    <a class="card" routerLink="/trabalhos/aniversarios" aria-label="Ver Aniversários">
+      <img src="assets/trabalhos/covers/aniversarios.jpg" alt="Aniversários">
+      <span class="card-title">Aniversários</span>
     </a>
 
-    <a class="tile" [routerLink]="['/trabalhos','cha-revelacao']">
-      <img src="assets/trabalhos/covers/cha-revelacao.jpg" alt="Chá Revelação" loading="lazy">
-      <span class="legend">Chá Revelação</span>
+    <!-- CHÁ REVELAÇÃO -->
+    <a class="card" routerLink="/trabalhos/cha-revelacao" aria-label="Ver Chá Revelação">
+      <img src="assets/trabalhos/covers/cha-revelacao.jpg" alt="Chá Revelação">
+      <span class="card-title">Chá Revelação</span>
     </a>
 
-    <a class="tile" [routerLink]="['/trabalhos','batizado']">
-      <img src="assets/trabalhos/covers/batizado.jpg" alt="Batizado" loading="lazy">
-      <span class="legend">Batizado</span>
+    <!-- BATIZADO -->
+    <a class="card" routerLink="/trabalhos/batizado" aria-label="Ver Batizado">
+      <img src="assets/trabalhos/covers/batizado.jpg" alt="Batizado">
+      <span class="card-title">Batizado</span>
     </a>
   </div>
-</section>
+</div>

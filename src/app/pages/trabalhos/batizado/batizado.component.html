@@ -1,6 +1,29 @@
-<<section class="wrap">
-  <h2>Batizado</h2>
-  <div class="grid">
-    <img *ngFor="let src of fotos" [src]="src" alt="Batizado" loading="lazy">
+<div class="wrap">
+  <div class="gallery-header">
+    <button type="button" class="back-btn" (click)="voltar()" aria-label="Voltar">← Voltar</button>
+    <h2 class="page-title">Batizado</h2>
   </div>
-</section>
+
+  <div class="grid">
+    <img
+      *ngFor="let f of fotos; index as i"
+      class="thumb"
+      [src]="f.thumb"
+      [alt]="f.alt"
+      loading="lazy"
+      (click)="abrirLightbox(i)"
+    >
+  </div>
+
+  <p class="page-hint">Clique na foto para ver a imagem em alta resolução.</p>
+
+  <div class="lightbox" *ngIf="lightboxAberta" (click)="fecharLightbox()" aria-modal="true" role="dialog">
+    <figure class="viewer" (click)="$event.stopPropagation()">
+      <img class="fullimg" [src]="fotoFullAtual.full" [alt]="fotoFullAtual.alt">
+    </figure>
+
+    <button class="lb-btn close" (click)="fecharLightbox()" aria-label="Fechar">×</button>
+    <button class="lb-btn prev"  (click)="anterior()"        aria-label="Anterior">‹</button>
+    <button class="lb-btn next"  (click)="proxima()"         aria-label="Próxima">›</button>
+  </div>
+</div>

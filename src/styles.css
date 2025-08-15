@@ -1,1 +1,53 @@
-/* You can add global styles to this file, and also import other style files */
+/* =========================================================
+   Blindagem global contra overflow + espaçamento lateral
+   ========================================================= */
+
+/* Espaço lateral padrão (ajuste livre) */
+:root {
+  --gutter-x: clamp(18px, 4vw, 28px);
+}
+
+/* Tudo mede largura com borda e padding inclusos */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Evita rolagem horizontal global */
+html, body { max-width: 100%; overflow-x: hidden; }
+body { margin: 0; }
+
+/* Mídias responsivas por padrão */
+img, video, canvas, svg { 
+  max-width: 100%; 
+  height: auto; 
+  display: block; 
+}
+
+/* Utilitário opcional para aplicar manualmente */
+.gutter {
+  padding-left: max(var(--gutter-x), env(safe-area-inset-left));
+  padding-right: max(var(--gutter-x), env(safe-area-inset-right));
+  box-sizing: border-box;
+}
+
+/* Aplica o “respiro” automaticamente nos contêineres comuns */
+.feature-wrap,
+.content,
+.footer-wrap,
+.wrap,             /* galerias (aniversários/cha-revelacao/batizado) */
+.orcamento-wrap,  /* wrapper do formulário do orçamento (se você criou) */
+.page-container {
+  padding-left: max(var(--gutter-x), env(safe-area-inset-left));
+  padding-right: max(var(--gutter-x), env(safe-area-inset-right));
+  box-sizing: border-box;
+}
+
+/* Contêiner genérico centralizado (quando quiser limite de largura) */
+.page-container{
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+/* =========================================================
+   Você pode adicionar estilos globais abaixo
+   (e também importar outros arquivos de estilo)
+   ========================================================= */

@@ -1,24 +1,127 @@
-.sobre-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 20px 30px;
-  background-color: #fdfdfd;
-  border-radius: 12px;
-  border: 2px solid #563174;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+:host{ display:block; overflow-x:hidden; color:#fff; }
+
+/* Container da página (usa o mesmo “wrap” das outras telas) */
+.wrap.sobre{
+  width:100%;
+  max-width:1100px;
+  margin:1rem auto 2rem;
+  padding:0 .75rem;
+  box-sizing:border-box;
 }
 
-.titulo {
-  text-align: center;
-  font-size: 28px;
-  color: #563174;
-  margin-bottom: 25px;
+/* Cabeçalho */
+.header h1{
+  margin: .25rem 0 .25rem;
+  text-align:center;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.header .sub{
+  margin:0 0 1rem;
+  text-align:center;
+  color:#ffffffcc;
+  font-size:clamp(14px, 1.9vw, 16px);
 }
 
-.texto p {
-  font-size: 16px;
-  line-height: 1.8;
-  margin-bottom: 15px;
-  color: #333;
-  text-align: justify;
+/* Cartão “glass” */
+.glass{
+  display:grid;
+  gap:16px;
+  grid-template-columns: 1fr;           /* mobile: 1 coluna */
+  padding:16px;
+  border-radius:16px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  backdrop-filter: blur(6px);
+}
+@media (min-width: 768px){
+  .glass{
+    grid-template-columns: 320px 1fr;   /* desktop: foto + texto */
+    padding:20px;
+  }
+}
+
+/* Foto */
+.photo img{
+  width:100%;
+  height:auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.2);
+}
+
+/* Bio */
+.bio h2{
+  margin:.25rem 0 .5rem;
+  font-weight:800;
+}
+.bio p{
+  margin:0 0 .75rem;
+  color:#f3f5f8;
+}
+
+/* Fatos rápidos (chips) */
+.facts{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+  list-style:none; padding:0; margin:0 0 .75rem;
+}
+.facts li{
+  padding:.45rem .7rem;
+  border-radius:999px;
+  background: rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.18);
+  white-space:nowrap;
+}
+
+/* CTAs */
+.cta{ display:flex; flex-wrap:wrap; gap:.5rem; }
+.btn{
+  display:inline-block;
+  padding:.6rem 1rem;
+  border-radius:10px;
+  background:#ffffff1a;
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff; text-decoration:none; font-weight:700;
+}
+.btn:hover{ background:#ffffff2b; }
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.25);
+}
+.btn.ghost:hover{ background:#ffffff14; }
+
+/* Timeline */
+.timeline{
+  margin-top: 1.25rem;
+}
+.timeline h3{
+  margin: 0 0 .75rem;
+  font-weight:800;
+}
+.timeline ul{
+  list-style:none; padding:0; margin:0;
+  display:grid; gap:.75rem;
+}
+.timeline li{
+  position:relative; padding-left:20px;
+}
+.timeline .dot{
+  position:absolute; left:0; top:.5rem;
+  width:10px; height:10px; border-radius:50%;
+  background:#fff; box-shadow:0 0 0 3px rgba(255,255,255,.25);
+}
+.timeline .tcard{
+  padding:.6rem .75rem;
+  border-radius:10px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.16);
+}
+.timeline .tcard h4{
+  margin:.1rem 0 .35rem; font-weight:800;
+}
+.timeline .tcard p{
+  margin:0; color:#ffffffd0;
 }

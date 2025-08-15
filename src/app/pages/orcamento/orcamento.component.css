@@ -1,3 +1,23 @@
+/* Wrapper com “respiro” lateral e sem overflow */
+.orcamento-wrap{
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-left: clamp(14px, 4vw, 24px);
+  padding-right: clamp(14px, 4vw, 24px);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Para evitar soma dupla de padding com o .container do Bootstrap */
+.container{
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+
+
 /* ===== Layout do topo da página do orçamento (opcional) ===== */
 .banner{
   text-align: center;

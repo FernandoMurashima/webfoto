@@ -1,5 +1,5 @@
 /* NOVO: Fonte para o brand (pode trocar por Poppins, Inter, etc.) */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap'); /* NOVO */
+/* @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap'); NOVO */
 
 /* ==================== */
 /* Paleta e utilidades  */
@@ -68,7 +68,7 @@ body { margin: 0; color: var(--ink); background: var(--bg-page-start); }
   left: 50%;
   transform: translateX(-50%);
   font-size: clamp(22px, 3.8vw, 44px); /* NOVO: tamanho responsivo maior */
-  font-weight: 800;                    /* ALTERADO (antes 700) */
+  font-weight: 700;                    /* ALTERADO (antes 700) */
   letter-spacing: .10em;               /* ALTERADO (antes .08em) */
   color: #fff;                         /* NOVO: garante contraste do brand */
   font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; /* NOVO: troca de fonte */
