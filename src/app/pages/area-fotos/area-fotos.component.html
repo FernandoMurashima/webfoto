@@ -1,0 +1,184 @@
+<section class="photo-area">
+  <div class="intro">
+    <p class="eyebrow">Area restrita</p>
+    <h1>Entrega de fotos</h1>
+    <p>Clientes acessam apenas a pasta liberada pela administradora e podem baixar as imagens do ensaio.</p>
+  </div>
+
+  <div class="panel-switch" role="tablist" aria-label="Escolha o acesso">
+    <button type="button" [class.active]="activePanel === 'cliente'" (click)="switchPanel('cliente')">Cliente</button>
+    <button type="button" [class.active]="activePanel === 'admin'" (click)="switchPanel('admin')">Admin</button>
+  </div>
+
+  <p class="alert success" *ngIf="message">{{ message }}</p>
+  <p class="alert error" *ngIf="error">{{ error }}</p>
+  <p class="alert loading" *ngIf="loading">Processando...</p>
+
+  <ng-container *ngIf="activePanel === 'cliente'">
+    <form class="access-box" *ngIf="!clientLogged" (ngSubmit)="loginClient()">
+      <h2>Acessar minhas fotos</h2>
+      <label>
+        Login
+        <input name="clientLogin" [(ngModel)]="clientForm.login" autocomplete="username">
+      </label>
+      <label>
+        Senha
+        <input name="clientPassword" [(ngModel)]="clientForm.password" type="password" autocomplete="current-password">
+      </label>
+      <button class="primary" type="submit">Entrar</button>
+    </form>
+
+    <div class="client-gallery" *ngIf="clientLogged && clientFolder">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Pasta liberada</p>
+          <h2>{{ userFolderName }}</h2>
+        </div>
+        <button class="ghost" type="button" (click)="logoutClient()">Sair</button>
+      </div>
+
+      <p class="empty" *ngIf="!clientFolder.photos.length">Ainda nao ha fotos nesta pasta.</p>
+
+      <div class="photo-grid" *ngIf="clientFolder.photos.length">
+        <article class="photo-card" *ngFor="let photo of clientFolder.photos">
+          <img [src]="photoUrl(photo, 'client')" [alt]="photo.name">
+          <div class="photo-info">
+            <strong>{{ photo.name }}</strong>
+            <span>{{ formatSize(photo.size) }}</span>
+          </div>
+          <button type="button" (click)="downloadPhoto(photo)">Baixar</button>
+        </article>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="activePanel === 'admin'">
+    <form class="access-box" *ngIf="!adminLogged" (ngSubmit)="loginAdmin()">
+      <h2>Entrar como administradora</h2>
+      <label>
+        Login
+        <input name="adminLogin" [(ngModel)]="adminForm.login" autocomplete="username">
+      </label>
+      <label>
+        Senha
+        <input name="adminPassword" [(ngModel)]="adminForm.password" type="password" autocomplete="current-password">
+      </label>
+      <button class="primary" type="submit">Entrar</button>
+      <p class="hint">Primeiro acesso: admin / mayara2026</p>
+    </form>
+
+    <div class="admin-area" *ngIf="adminLogged">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Painel admin</p>
+          <h2>Pastas, fotos e logins</h2>
+        </div>
+        <button class="ghost" type="button" (click)="logoutAdmin()">Sair</button>
+      </div>
+
+      <div class="admin-grid">
+        <form class="tool-box" (ngSubmit)="createFolder()">
+          <h3>Criar pasta</h3>
+          <label>
+            Nome da pasta
+            <input name="folderName" [(ngModel)]="folderForm.name" placeholder="Ex: Aniversario da Ana">
+          </label>
+          <label>
+            Observacao
+            <textarea name="folderDescription" [(ngModel)]="folderForm.description" rows="3"></textarea>
+          </label>
+          <button class="primary" type="submit">Criar pasta</button>
+        </form>
+
+        <div class="tool-box">
+          <h3>Enviar fotos</h3>
+          <label>
+            Pasta
+            <select [(ngModel)]="uploadFolderId" name="uploadFolder">
+              <option value="" disabled>Escolha uma pasta</option>
+              <option *ngFor="let folder of folders" [ngValue]="folder.id">{{ folder.name }}</option>
+            </select>
+          </label>
+          <label class="file-picker">
+            Selecionar imagens
+            <input type="file" accept="image/*" multiple (change)="uploadPhotos($event)">
+          </label>
+        </div>
+
+        <form class="tool-box" (ngSubmit)="createUser()">
+          <h3>Criar login</h3>
+          <label>
+            Nome do cliente
+            <input name="userName" [(ngModel)]="userForm.name">
+          </label>
+          <label>
+            Login
+            <input name="userLogin" [(ngModel)]="userForm.login">
+          </label>
+          <label>
+            Senha
+            <input name="userPassword" [(ngModel)]="userForm.password">
+          </label>
+          <label>
+            Pasta liberada
+            <select name="userFolder" [(ngModel)]="userForm.folderId">
+              <option value="" disabled>Escolha uma pasta</option>
+              <option *ngFor="let folder of folders" [ngValue]="folder.id">{{ folder.name }}</option>
+            </select>
+          </label>
+          <button class="primary" type="submit">Criar usuario</button>
+        </form>
+      </div>
+
+      <div class="management">
+        <div class="list-box">
+          <div class="section-head compact">
+            <h3>Pastas criadas</h3>
+            <select [(ngModel)]="selectedFolderId" name="selectedFolder">
+              <option *ngFor="let folder of folders" [ngValue]="folder.id">{{ folder.name }}</option>
+            </select>
+          </div>
+
+          <p class="empty" *ngIf="!folders.length">Nenhuma pasta criada ainda.</p>
+
+          <div class="folder-detail" *ngIf="selectedFolder as folder">
+            <div class="folder-title">
+              <div>
+                <strong>{{ folder.name }}</strong>
+                <span>{{ folder.photos.length }} foto(s)</span>
+              </div>
+              <button class="danger" type="button" (click)="deleteFolder(folder.id)">Excluir pasta</button>
+            </div>
+            <p *ngIf="folder.description">{{ folder.description }}</p>
+
+            <div class="photo-grid small" *ngIf="folder.photos.length">
+              <article class="photo-card" *ngFor="let photo of folder.photos">
+                <img [src]="photoUrl(photo, 'admin')" [alt]="photo.name">
+                <div class="photo-info">
+                  <strong>{{ photo.name }}</strong>
+                  <span>{{ formatSize(photo.size) }}</span>
+                </div>
+                <div class="photo-actions">
+                  <button type="button" (click)="downloadPhoto(photo)">Baixar</button>
+                  <button class="danger" type="button" (click)="deletePhoto(photo.id)">Remover</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-box">
+          <h3>Usuarios</h3>
+          <p class="empty" *ngIf="!users.length">Nenhum usuario criado ainda.</p>
+          <article class="user-row" *ngFor="let user of users">
+            <div>
+              <strong>{{ user.name }}</strong>
+              <span>{{ user.login }} - {{ getFolderName(user.folderId) }}</span>
+            </div>
+            <button class="danger" type="button" (click)="deleteUser(user.id)">Excluir</button>
+          </article>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</section>

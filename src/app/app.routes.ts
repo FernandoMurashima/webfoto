@@ -4,6 +4,7 @@ import { SobreComponent } from './pages/sobre/sobre.component';
 import { ContatoComponent } from './pages/contato/contato.component';
 import { TrabalhosComponent } from './pages/trabalhos/trabalhos.component';
 import { OrcamentoComponent } from './pages/orcamento/orcamento.component';
+import { AreaFotosComponent } from './pages/area-fotos/area-fotos.component';
 
 import { AniversariosComponent } from './pages/trabalhos/aniversarios/aniversarios.component';
 import { ChaRevelacaoComponent } from './pages/trabalhos/cha-revelacao/cha-revelacao.component';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'sobre', component: SobreComponent },
   { path: 'trabalhos', component: TrabalhosComponent },
   { path: 'orcamento', component: OrcamentoComponent },
+  { path: 'area-fotos', component: AreaFotosComponent },
   { path: 'contato', component: ContatoComponent }, // pode manter por enquanto
   { path: 'trabalhos/aniversarios', component: AniversariosComponent },
   { path: 'trabalhos/cha-revelacao', component: ChaRevelacaoComponent },
