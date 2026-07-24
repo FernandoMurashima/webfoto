@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
@@ -8,6 +8,9 @@ export interface PhotoFile {
   type: string;
   size: number;
   url: string;
+  status: string;
+  uploadKey?: string;
+  relativePath?: string;
   createdAt: string;
 }
 
@@ -30,6 +33,33 @@ export interface PhotoUser {
 export interface PhotoAccessState {
   folders: PhotoFolder[];
   users: PhotoUser[];
+}
+
+export interface UploadSession {
+  id: number;
+  uuid: string;
+  folderId: number;
+  totalFiles: number;
+  totalBytes: number;
+  completedFiles: number;
+  failedFiles: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface ZipJob {
+  id: number;
+  uuid: string;
+  folderId: number;
+  status: 'aguardando' | 'processando' | 'pronto' | 'erro' | 'expirado';
+  totalFiles: number;
+  processedFiles: number;
+  percent: number;
+  size: number;
+  url?: string;
+  error?: string;
+  expiresAt?: string;
+  createdAt: string;
 }
 
 interface LoginResponse {
@@ -96,6 +126,38 @@ export class PhotoAccessService {
     );
   }
 
+  createUploadSession(folderId: number, totalFiles: number, totalBytes: number): Observable<UploadSession> {
+    return this.http.post<UploadSession>(
+      `${this.apiUrl}/admin/folders/${folderId}/upload-sessions`,
+      { totalFiles, totalBytes },
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  uploadPhoto(
+    folderId: number,
+    sessionUuid: string,
+    uploadKey: string,
+    file: File,
+    relativePath: string
+  ): Observable<HttpEvent<{ photo: PhotoFile; duplicate?: boolean }>> {
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('sessionUuid', sessionUuid);
+    formData.append('uploadKey', uploadKey);
+    formData.append('relativePath', relativePath);
+
+    return this.http.post<{ photo: PhotoFile; duplicate?: boolean }>(
+      `${this.apiUrl}/admin/folders/${folderId}/photos/upload`,
+      formData,
+      {
+        headers: this.authHeaders(this.adminToken),
+        observe: 'events',
+        reportProgress: true
+      }
+    );
+  }
+
   uploadPhotos(folderId: number, files: File[]): Observable<{ photos: PhotoFile[] }> {
     const formData = new FormData();
     files.forEach((file) => formData.append('photos', file));
@@ -129,6 +191,24 @@ export class PhotoAccessService {
     return this.http.delete<void>(`${this.apiUrl}/admin/users/${userId}`, {
       headers: this.authHeaders(this.adminToken)
     });
+  }
+
+  createZip(folderId: number): Observable<ZipJob> {
+    return this.http.post<ZipJob>(
+      `${this.apiUrl}/client/folders/${folderId}/zip-jobs`,
+      {},
+      { headers: this.authHeaders(this.clientToken) }
+    );
+  }
+
+  getZipJob(jobUuid: string): Observable<ZipJob> {
+    return this.http.get<ZipJob>(`${this.apiUrl}/client/zip-jobs/${jobUuid}`, {
+      headers: this.authHeaders(this.clientToken)
+    });
+  }
+
+  zipUrl(job: ZipJob): string {
+    return `${job.url ?? ''}?token=${encodeURIComponent(this.clientToken)}`;
   }
 
   downloadPhoto(photo: PhotoFile): void {

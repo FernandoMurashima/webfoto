@@ -88,6 +88,11 @@ button,
   color: #be123c;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
 .alert {
   margin: 0;
   padding: .85rem 1rem;
@@ -167,6 +172,33 @@ textarea {
   gap: .8rem;
 }
 
+.client-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.zip-box {
+  display: grid;
+  gap: .6rem;
+  margin-bottom: 1rem;
+  padding: .85rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+}
+
+.zip-box div {
+  display: grid;
+  gap: .25rem;
+}
+
+.zip-ready {
+  margin: 0;
+  color: #047857;
+  font-weight: 800;
+}
+
 .section-head {
   margin-bottom: 1rem;
 }
@@ -200,59 +232,164 @@ textarea {
   pointer-events: none;
 }
 
-.photo-grid {
+.drop-zone {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: .5rem;
+  place-items: center;
+  min-height: 170px;
+  padding: 1rem;
+  border: 2px dashed #94a3b8;
+  border-radius: 8px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.drop-zone span {
+  color: #64748b;
+}
+
+.picker-actions,
+.queue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  justify-content: center;
+}
+
+.picker-actions .file-picker {
+  min-width: 140px;
+  padding: .65rem 1rem;
+  border-color: #0f766e;
+  background: #ecfdf5;
+  color: #0f766e;
+}
+
+.upload-board {
+  display: grid;
   gap: 1rem;
-}
-
-.photo-grid.small {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   margin-top: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(17, 24, 39, .08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .14);
 }
 
-.photo-card {
+.queue-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: .5rem;
+}
+
+.queue-summary span {
+  padding: .55rem .7rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.overall-progress {
+  display: grid;
+  gap: .45rem;
+}
+
+.overall-progress div {
+  display: flex;
+  justify-content: space-between;
+  gap: .7rem;
+}
+
+progress {
+  width: 100%;
+  height: 12px;
   overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+progress::-webkit-progress-bar {
+  background: #e2e8f0;
+}
+
+progress::-webkit-progress-value {
+  background: #0f766e;
+}
+
+progress::-moz-progress-bar {
+  background: #0f766e;
+}
+
+.queue-list {
+  display: grid;
+  gap: .55rem;
+  max-height: 560px;
+  overflow: auto;
+  padding-right: .25rem;
+}
+
+.queue-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, .35fr) auto;
+  gap: .75rem;
+  align-items: center;
+  padding: .75rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
 }
 
-.photo-card img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: #e2e8f0;
-}
-
-.photo-info {
+.queue-item-main,
+.item-progress {
   display: grid;
-  gap: .25rem;
-  padding: .75rem;
+  gap: .28rem;
+  min-width: 0;
 }
 
-.photo-info strong,
+.queue-item-main strong {
+  overflow-wrap: anywhere;
+}
+
+.queue-item-main span,
+.item-progress span {
+  color: #64748b;
+  font-size: .9rem;
+}
+
+.item-error {
+  color: #be123c !important;
+}
+
+.item-actions {
+  display: flex;
+  gap: .45rem;
+}
+
+.gallery-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin: .5rem 0 1rem;
+  padding: .75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+}
+
 .user-row strong,
 .folder-title strong {
   overflow-wrap: anywhere;
 }
 
-.photo-info span,
 .user-row span,
 .folder-title span {
   color: #64748b;
   font-size: .9rem;
-}
-
-.photo-card > button,
-.photo-actions {
-  margin: 0 .75rem .75rem;
-}
-
-.photo-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .45rem;
 }
 
 .folder-detail {
@@ -296,5 +433,14 @@ textarea {
 
   .section-head.compact select {
     max-width: none;
+  }
+
+  .queue-item {
+    grid-template-columns: 1fr;
+  }
+
+  .queue-actions button,
+  .item-actions button {
+    width: 100%;
   }
 }

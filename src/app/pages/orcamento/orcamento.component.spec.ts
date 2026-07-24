@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { OrcamentoComponent } from './orcamento.component';
 
@@ -8,7 +9,8 @@ describe('OrcamentoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OrcamentoComponent]
+      imports: [OrcamentoComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
     

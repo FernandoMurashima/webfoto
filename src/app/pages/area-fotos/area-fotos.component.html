@@ -34,20 +34,32 @@
           <p class="eyebrow">Pasta liberada</p>
           <h2>{{ userFolderName }}</h2>
         </div>
-        <button class="ghost" type="button" (click)="logoutClient()">Sair</button>
+        <div class="client-actions">
+          <button type="button" (click)="createZip()" [disabled]="!clientFolder.photos.length || zipJob?.status === 'aguardando' || zipJob?.status === 'processando'">Baixar todas</button>
+          <button class="ghost" type="button" (click)="logoutClient()">Sair</button>
+        </div>
+      </div>
+
+      <div class="zip-box" *ngIf="zipJob">
+        <div>
+          <strong>Download em lote: {{ zipJob.status }}</strong>
+          <span>Total: {{ zipJob.totalFiles }} foto(s)</span>
+          <span>Processadas: {{ zipJob.processedFiles }}</span>
+          <span>Faltando: {{ zipJob.totalFiles - zipJob.processedFiles }}</span>
+          <span>Progresso: {{ zipJob.percent }}%</span>
+          <span *ngIf="zipJob.status === 'pronto'">Arquivo pronto: {{ formatSize(zipJob.size) }}</span>
+          <span class="item-error" *ngIf="zipJob.error">{{ zipJob.error }}</span>
+        </div>
+        <progress [value]="zipJob.percent" max="100"></progress>
+        <p class="zip-ready" *ngIf="zipJob.status === 'pronto'">Download preparado com sucesso.</p>
+        <button class="primary" type="button" *ngIf="zipJob.status === 'pronto'" (click)="downloadZip()">Baixar ZIP</button>
       </div>
 
       <p class="empty" *ngIf="!clientFolder.photos.length">Ainda nao ha fotos nesta pasta.</p>
 
-      <div class="photo-grid" *ngIf="clientFolder.photos.length">
-        <article class="photo-card" *ngFor="let photo of clientFolder.photos">
-          <img [src]="photoUrl(photo, 'client')" [alt]="photo.name">
-          <div class="photo-info">
-            <strong>{{ photo.name }}</strong>
-            <span>{{ formatSize(photo.size) }}</span>
-          </div>
-          <button type="button" (click)="downloadPhoto(photo)">Baixar</button>
-        </article>
+      <div class="gallery-note" *ngIf="clientFolder.photos.length">
+        <span>{{ clientFolder.photos.length }} foto(s) disponiveis nesta pasta.</span>
+        <span>Use Baixar todas para preparar um ZIP sem travar o navegador.</span>
       </div>
     </div>
   </ng-container>
@@ -99,10 +111,20 @@
               <option *ngFor="let folder of folders" [ngValue]="folder.id">{{ folder.name }}</option>
             </select>
           </label>
-          <label class="file-picker">
-            Selecionar imagens
-            <input type="file" accept="image/*" multiple (change)="uploadPhotos($event)">
-          </label>
+          <div class="drop-zone" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+            <strong>Arraste fotos aqui</strong>
+            <span>ou selecione imagens/pastas para montar a fila</span>
+            <div class="picker-actions">
+              <label class="file-picker">
+                Fotos
+                <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple (change)="addPhotosFromInput($event)">
+              </label>
+              <label class="file-picker">
+                Pasta inteira
+                <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple webkitdirectory directory (change)="addPhotosFromInput($event)">
+              </label>
+            </div>
+          </div>
         </div>
 
         <form class="tool-box" (ngSubmit)="createUser()">
@@ -130,6 +152,69 @@
         </form>
       </div>
 
+      <div class="upload-board" *ngIf="uploadQueue.length">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Fila de upload</p>
+            <h2>{{ queueSummary.total }} foto(s) selecionada(s)</h2>
+          </div>
+          <select [(ngModel)]="queueFilter" name="queueFilter">
+            <option value="todos">Todos</option>
+            <option value="aguardando">Aguardando</option>
+            <option value="enviando">Enviando</option>
+            <option value="concluido">Concluidas</option>
+            <option value="erro">Com erro</option>
+            <option value="cancelado">Canceladas</option>
+          </select>
+        </div>
+
+        <div class="queue-summary">
+          <span>Total: {{ queueSummary.total }}</span>
+          <span>Aguardando: {{ queueSummary.waiting }}</span>
+          <span>Enviando: {{ queueSummary.uploading }}</span>
+          <span>Concluidas: {{ queueSummary.completed }}</span>
+          <span>Falhas: {{ queueSummary.failed }}</span>
+          <span>Canceladas: {{ queueSummary.canceled }}</span>
+        </div>
+
+        <div class="overall-progress">
+          <div>
+            <strong>{{ queueSummary.percent }}%</strong>
+            <span>{{ formatSize(queueSummary.sentBytes) }} de {{ formatSize(queueSummary.totalBytes) }}</span>
+          </div>
+          <progress [value]="queueSummary.percent" max="100"></progress>
+        </div>
+
+        <div class="queue-actions">
+          <button class="primary" type="button" (click)="startQueue()" [disabled]="!queueSummary.waiting || !queuePaused && queueSummary.uploading > 0">Iniciar envio</button>
+          <button type="button" (click)="pauseQueue()" [disabled]="queuePaused">Pausar novos envios</button>
+          <button type="button" (click)="resumeQueue()" [disabled]="!queuePaused || !queueSummary.waiting">Continuar</button>
+          <button type="button" (click)="retryFailedUploads()" [disabled]="!queueSummary.failed">Tentar falhas</button>
+          <button type="button" (click)="cancelPendingUploads()" [disabled]="!queueSummary.waiting">Cancelar pendentes</button>
+          <button type="button" (click)="clearCompletedUploads()" [disabled]="!queueSummary.completed">Limpar concluidas</button>
+        </div>
+
+        <p class="hint" *ngIf="uploadQueue.length > filteredUploadQueue.length">Mostrando os primeiros {{ filteredUploadQueue.length }} itens deste filtro para manter a tela leve.</p>
+
+        <div class="queue-list">
+          <article class="queue-item" *ngFor="let item of filteredUploadQueue">
+            <div class="queue-item-main">
+              <strong>{{ item.relativePath }}</strong>
+              <span>{{ formatSize(item.size) }} - {{ item.status }} - tentativa {{ item.attempts }}</span>
+              <span class="item-error" *ngIf="item.error">{{ item.error }}</span>
+            </div>
+            <div class="item-progress">
+              <span>{{ item.progress }}%</span>
+              <progress [value]="item.progress" max="100"></progress>
+            </div>
+            <div class="item-actions">
+              <button type="button" *ngIf="item.status === 'erro'" (click)="retryUpload(item)">Tentar</button>
+              <button class="danger" type="button" *ngIf="item.status === 'aguardando' || item.status === 'enviando'" (click)="cancelUpload(item)">Cancelar</button>
+            </div>
+          </article>
+        </div>
+      </div>
+
       <div class="management">
         <div class="list-box">
           <div class="section-head compact">
@@ -151,18 +236,9 @@
             </div>
             <p *ngIf="folder.description">{{ folder.description }}</p>
 
-            <div class="photo-grid small" *ngIf="folder.photos.length">
-              <article class="photo-card" *ngFor="let photo of folder.photos">
-                <img [src]="photoUrl(photo, 'admin')" [alt]="photo.name">
-                <div class="photo-info">
-                  <strong>{{ photo.name }}</strong>
-                  <span>{{ formatSize(photo.size) }}</span>
-                </div>
-                <div class="photo-actions">
-                  <button type="button" (click)="downloadPhoto(photo)">Baixar</button>
-                  <button class="danger" type="button" (click)="deletePhoto(photo.id)">Remover</button>
-                </div>
-              </article>
+            <div class="gallery-note" *ngIf="folder.photos.length">
+              <span>{{ folder.photos.length }} foto(s) armazenada(s) nesta pasta.</span>
+              <span>Pre-visualizacao desativada para manter a tela rapida com muitas imagens.</span>
             </div>
           </div>
         </div>

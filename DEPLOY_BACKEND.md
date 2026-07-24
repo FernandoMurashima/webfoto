@@ -38,7 +38,9 @@ docker run -d \
   -e TOKEN_SECRET='TROQUE_POR_UM_SEGREDO_GRANDE' \
   -e ADMIN_LOGIN=admin \
   -e ADMIN_PASSWORD='mayara2026' \
+  -e MAX_PHOTO_SIZE=62914560 \
   -v webfoto_uploads:/app/uploads \
+  -v webfoto_zips:/app/zips \
   webfoto-api
 ```
 
@@ -63,6 +65,16 @@ http://webfoto-api:3000
 ```
 
 Mantenha o restante do site apontando para o container `webfoto`.
+
+Em `Advanced`, se o Nginx Proxy Manager rejeitar fotos grandes, adicione:
+
+```nginx
+client_max_body_size 70M;
+proxy_read_timeout 300s;
+proxy_send_timeout 300s;
+```
+
+O upload do navegador envia uma foto por requisicao e limita a fila a 4 envios simultaneos.
 
 ## 4. Testar
 

@@ -7,4 +7,6 @@ import { LayoutComponent } from './layout/layout.component';
   imports: [LayoutComponent],
   template: '<app-layout></app-layout>',
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'webfoto';
+}
