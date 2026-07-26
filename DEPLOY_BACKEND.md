@@ -37,10 +37,15 @@ docker run -d \
   -e MYSQL_DATABASE=webfoto \
   -e TOKEN_SECRET='TROQUE_POR_UM_SEGREDO_GRANDE' \
   -e ADMIN_LOGIN=admin \
-  -e ADMIN_PASSWORD='mayara2026' \
+  -e ADMIN_PASSWORD='defina-uma-senha-forte-aqui' \
   -e MAX_PHOTO_SIZE=62914560 \
+  -e UPLOAD_CHUNK_SIZE=20971520 \
+  -e MAX_ZIP_UPLOAD_SIZE=21474836480 \
+  -e MAX_UPLOAD_CHUNKS=2000 \
+  -e UPLOAD_TEMP_RETENTION_HOURS=48 \
   -v webfoto_uploads:/app/uploads \
   -v webfoto_zips:/app/zips \
+  -v webfoto_upload_temp:/app/upload-temp \
   webfoto-api
 ```
 
@@ -74,7 +79,7 @@ proxy_read_timeout 300s;
 proxy_send_timeout 300s;
 ```
 
-O upload do navegador envia uma foto por requisicao e limita a fila a 4 envios simultaneos.
+O upload de fotos envia uma foto por requisicao e a API prepara o ZIP automaticamente apos a fila terminar. O upload de ZIP pronto usa partes de 20 MB e permite retomar partes ja recebidas.
 
 ## 4. Testar
 

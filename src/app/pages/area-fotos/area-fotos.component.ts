@@ -3,11 +3,28 @@ import { Component, HostListener, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { PhotoAccessService, PhotoFile, PhotoFolder, PhotoUser, ZipJob } from '../../services/photo-access.service';
+import { ChunkUploadStatus, PhotoAccessService, PhotoFile, PhotoFolder, PhotoUser, ZipJob, ZipStatus } from '../../services/photo-access.service';
 
 type ActivePanel = 'cliente' | 'admin';
 type UploadStatus = 'aguardando' | 'enviando' | 'concluido' | 'erro' | 'cancelado';
 type QueueFilter = 'todos' | UploadStatus;
+
+interface ZipUploadState {
+  file?: File;
+  uploadId: string;
+  chunkSize: number;
+  totalChunks: number;
+  uploadedChunks: Set<number>;
+  activeChunks: Set<number>;
+  uploadedBytes: number;
+  totalBytes: number;
+  percent: number;
+  speed: number;
+  etaSeconds: number;
+  status: 'aguardando' | 'enviando' | 'validando' | 'pronto' | 'erro' | 'cancelado';
+  startedAt: number;
+  error?: string;
+}
 
 interface UploadQueueItem {
   id: string;
@@ -51,7 +68,10 @@ export class AreaFotosComponent implements OnDestroy {
   clientUser?: PhotoUser;
   clientFolder?: PhotoFolder;
   zipJob?: ZipJob;
+  adminZipStatus?: ZipStatus;
   zipPolling?: Subscription;
+  adminZipPolling?: number;
+  zipUpload: ZipUploadState = this.emptyZipUpload();
   message = '';
   error = '';
 
@@ -95,6 +115,7 @@ export class AreaFotosComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.uploadQueue.forEach((item) => item.subscription?.unsubscribe());
     this.zipPolling?.unsubscribe();
+    window.clearTimeout(this.adminZipPolling);
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -147,6 +168,10 @@ export class AreaFotosComponent implements OnDestroy {
     const percent = totalBytes ? Math.round((sentBytes / totalBytes) * 100) : 0;
 
     return { total, waiting, uploading, completed, failed, canceled, totalBytes, sentBytes, percent };
+  }
+
+  get canPublishSelectedFolder(): boolean {
+    return this.selectedFolder?.publicationStatus === 'pronto' || this.adminZipStatus?.status === 'pronto';
   }
 
   switchPanel(panel: ActivePanel): void {
@@ -228,15 +253,15 @@ export class AreaFotosComponent implements OnDestroy {
   }
 
   downloadZip(): void {
-    if (!this.zipJob?.url) {
+    if (!this.clientFolder) {
       return;
     }
 
     const link = document.createElement('a');
-    link.href = this.photoAccess.zipUrl(this.zipJob);
+    link.href = this.photoAccess.folderDownloadUrl(this.clientFolder.id);
     link.download = 'fotos.zip';
     link.click();
-    this.message = 'Download do ZIP iniciado.';
+    this.message = 'Download iniciado. O progresso detalhado sera mostrado pelo navegador.';
   }
 
   createFolder(): void {
@@ -399,6 +424,180 @@ export class AreaFotosComponent implements OnDestroy {
     this.uploadQueue = this.uploadQueue.filter((item) => item.status !== 'concluido');
   }
 
+  selectZipFromInput(event: Event): void {
+    this.clearAlerts();
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.uploadFolderId) {
+      this.error = 'Escolha uma pasta antes de enviar o ZIP.';
+      input.value = '';
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      this.error = 'Selecione um arquivo .zip valido.';
+      input.value = '';
+      return;
+    }
+
+    this.zipUpload = {
+      ...this.emptyZipUpload(),
+      file,
+      totalBytes: file.size,
+      status: 'aguardando'
+    };
+    input.value = '';
+  }
+
+  startZipUpload(): void {
+    const file = this.zipUpload.file;
+
+    if (!file || !this.uploadFolderId) {
+      this.error = 'Selecione uma pasta e um arquivo ZIP.';
+      return;
+    }
+
+    this.clearAlerts();
+    const totalChunks = Math.ceil(file.size / (20 * 1024 * 1024));
+    this.zipUpload = {
+      ...this.zipUpload,
+      totalChunks,
+      status: 'enviando',
+      startedAt: Date.now(),
+      error: undefined
+    };
+
+    this.photoAccess.startZipUpload(Number(this.uploadFolderId), file, totalChunks).subscribe({
+      next: (response) => {
+        this.zipUpload.uploadId = response.upload_id;
+        this.zipUpload.chunkSize = response.chunk_size;
+        this.zipUpload.totalChunks = Math.ceil(file.size / response.chunk_size);
+        this.zipUpload.uploadedChunks = new Set(response.uploaded_chunks);
+        this.uploadZipChunks();
+      },
+      error: (response) => {
+        this.zipUpload.status = 'erro';
+        this.zipUpload.error = response?.error?.message ?? 'Nao foi possivel iniciar o upload do ZIP.';
+      }
+    });
+  }
+
+  cancelZipUpload(): void {
+    if (!this.zipUpload.uploadId) {
+      this.zipUpload = this.emptyZipUpload();
+      return;
+    }
+
+    this.photoAccess.cancelChunkUpload(this.zipUpload.uploadId).subscribe({
+      next: () => {
+        this.zipUpload = { ...this.zipUpload, status: 'cancelado' };
+        this.message = 'Upload do ZIP cancelado.';
+      },
+      error: () => this.showError('Nao foi possivel cancelar o upload.')
+    });
+  }
+
+  refreshAdminZipStatus(): void {
+    const folderId = Number(this.selectedFolderId || this.uploadFolderId);
+
+    if (!folderId || !this.adminLogged) {
+      return;
+    }
+
+    window.clearTimeout(this.adminZipPolling);
+    this.photoAccess.getAdminZipStatus(folderId).subscribe({
+      next: (status) => {
+        this.adminZipStatus = status;
+
+        if (status.status === 'aguardando_zip' || status.status === 'gerando_zip' || status.status === 'enviando') {
+          this.adminZipPolling = window.setTimeout(() => this.refreshAdminZipStatus(), 1800);
+        }
+      },
+      error: () => undefined
+    });
+  }
+
+  rebuildZip(): void {
+    const folderId = Number(this.selectedFolderId);
+
+    if (!folderId) {
+      return;
+    }
+
+    this.clearAlerts();
+    this.photoAccess.createAdminZip(folderId).subscribe({
+      next: (job) => {
+        this.message = 'Preparacao do ZIP iniciada.';
+        this.adminZipStatus = {
+          status: job.status,
+          processed_files: job.processedFiles,
+          total_files: job.totalFiles,
+          processed_bytes: job.processedBytes || 0,
+          total_bytes: job.totalBytes || 0,
+          progress_percent: job.percent,
+          zip_size_bytes: job.size,
+          message: 'Preparando arquivo ZIP'
+        };
+        this.refreshAdminZipStatus();
+      },
+      error: (response) => this.showError(response?.error?.message ?? 'Nao foi possivel preparar o ZIP.')
+    });
+  }
+
+  publishSelectedFolder(): void {
+    const folderId = Number(this.selectedFolderId);
+
+    if (!folderId) {
+      return;
+    }
+
+    this.photoAccess.publishFolder(folderId).subscribe({
+      next: () => {
+        this.message = 'Album publicado para o cliente.';
+        this.loadAdminState(false);
+      },
+      error: (response) => this.showError(response?.error?.message ?? 'O album ainda esta sendo preparado. Aguarde a conclusao do arquivo ZIP.')
+    });
+  }
+
+  unpublishSelectedFolder(): void {
+    const folderId = Number(this.selectedFolderId);
+
+    if (!folderId) {
+      return;
+    }
+
+    this.photoAccess.unpublishFolder(folderId).subscribe({
+      next: () => {
+        this.message = 'Album retirado de publicacao.';
+        this.loadAdminState(false);
+      },
+      error: () => this.showError('Nao foi possivel retirar a publicacao.')
+    });
+  }
+
+  deleteCurrentZip(): void {
+    const folderId = Number(this.selectedFolderId);
+
+    if (!folderId || !window.confirm('Excluir o ZIP pronto desta pasta?')) {
+      return;
+    }
+
+    this.photoAccess.deleteFolderZip(folderId).subscribe({
+      next: () => {
+        this.message = 'ZIP excluido.';
+        this.loadAdminState(false);
+        this.refreshAdminZipStatus();
+      },
+      error: () => this.showError('Nao foi possivel excluir o ZIP.')
+    });
+  }
+
   createUser(): void {
     this.clearAlerts();
     const { name, login, password, folderId } = this.userForm;
@@ -488,6 +687,7 @@ export class AreaFotosComponent implements OnDestroy {
         this.uploadFolderId = this.uploadFolderId || this.folders[0]?.id || 0;
         this.userForm.folderId = this.userForm.folderId || this.folders[0]?.id || 0;
         this.loading = false;
+        this.refreshAdminZipStatus();
       },
       error: () => {
         this.photoAccess.logoutAdmin();
@@ -495,6 +695,125 @@ export class AreaFotosComponent implements OnDestroy {
         this.showError('Sessao do admin expirada. Entre novamente.');
       }
     });
+  }
+
+  private uploadZipChunks(): void {
+    const file = this.zipUpload.file;
+
+    if (!file || !this.zipUpload.uploadId) {
+      return;
+    }
+
+    const concurrency = 3;
+
+    while (this.zipUpload.activeChunks.size < concurrency) {
+      const next = this.nextZipChunk();
+
+      if (next === -1) {
+        if (!this.zipUpload.activeChunks.size) {
+          this.finalizeZipUpload();
+        }
+        return;
+      }
+
+      this.zipUpload.activeChunks.add(next);
+      const start = next * this.zipUpload.chunkSize;
+      const end = Math.min(start + this.zipUpload.chunkSize, file.size);
+      const chunk = file.slice(start, end);
+
+      this.photoAccess.uploadChunk(this.zipUpload.uploadId, next, chunk).subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress) {
+            this.updateZipUploadProgress(next, event.loaded || 0);
+          }
+
+          if (event.type === HttpEventType.Response) {
+            this.zipUpload.uploadedChunks.add(next);
+            this.zipUpload.activeChunks.delete(next);
+            this.applyChunkStatus(event.body);
+            this.uploadZipChunks();
+          }
+        },
+        error: (response) => {
+          this.zipUpload.activeChunks.delete(next);
+          this.zipUpload.status = 'erro';
+          this.zipUpload.error = response?.error?.message ?? 'Falha no envio de uma parte.';
+        }
+      });
+    }
+  }
+
+  private finalizeZipUpload(): void {
+    if (!this.zipUpload.uploadId || this.zipUpload.status === 'validando' || this.zipUpload.status === 'pronto') {
+      return;
+    }
+
+    this.zipUpload.status = 'validando';
+    this.photoAccess.finalizeChunkUpload(this.zipUpload.uploadId).subscribe({
+      next: (status) => {
+        this.applyChunkStatus(status);
+        this.zipUpload.status = 'pronto';
+        this.zipUpload.percent = 100;
+        this.message = 'ZIP pronto para download.';
+        this.loadAdminState(false);
+        this.refreshAdminZipStatus();
+      },
+      error: (response) => {
+        this.zipUpload.status = 'erro';
+        this.zipUpload.error = response?.error?.message ?? 'Nao foi possivel validar o ZIP.';
+      }
+    });
+  }
+
+  private nextZipChunk(): number {
+    for (let index = 0; index < this.zipUpload.totalChunks; index += 1) {
+      if (!this.zipUpload.uploadedChunks.has(index) && !this.zipUpload.activeChunks.has(index)) {
+        return index;
+      }
+    }
+
+    return -1;
+  }
+
+  private applyChunkStatus(status?: ChunkUploadStatus | null): void {
+    if (!status) {
+      return;
+    }
+
+    this.zipUpload.uploadedBytes = status.uploaded_bytes;
+    this.zipUpload.totalBytes = status.total_bytes;
+    this.zipUpload.percent = status.percent;
+    this.zipUpload.uploadedChunks = new Set(status.uploaded_chunk_numbers || []);
+  }
+
+  private updateZipUploadProgress(chunkNumber: number, loaded: number): void {
+    const completedBytes = this.zipUpload.uploadedChunks.size * this.zipUpload.chunkSize;
+    const currentBytes = Math.min(loaded, this.zipUpload.chunkSize);
+    const uploadedBytes = Math.min(completedBytes + currentBytes, this.zipUpload.totalBytes);
+    const elapsed = Math.max(1, (Date.now() - this.zipUpload.startedAt) / 1000);
+    const speed = uploadedBytes / elapsed;
+
+    this.zipUpload.uploadedBytes = uploadedBytes;
+    this.zipUpload.percent = this.zipUpload.totalBytes ? Math.round((uploadedBytes / this.zipUpload.totalBytes) * 10000) / 100 : 0;
+    this.zipUpload.speed = speed;
+    this.zipUpload.etaSeconds = speed ? Math.max(0, Math.round((this.zipUpload.totalBytes - uploadedBytes) / speed)) : 0;
+  }
+
+  private emptyZipUpload(): ZipUploadState {
+    return {
+      uploadId: '',
+      chunkSize: 20 * 1024 * 1024,
+      totalChunks: 0,
+      uploadedChunks: new Set<number>(),
+      activeChunks: new Set<number>(),
+      uploadedBytes: 0,
+      totalBytes: 0,
+      percent: 0,
+      speed: 0,
+      etaSeconds: 0,
+      status: 'aguardando',
+      startedAt: Date.now()
+    };
   }
 
   private addFilesToQueue(files: File[]): void {

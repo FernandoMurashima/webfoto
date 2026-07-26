@@ -275,6 +275,55 @@ textarea {
   box-shadow: 0 16px 40px rgba(0, 0, 0, .14);
 }
 
+.zip-admin-board {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(17, 24, 39, .08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .14);
+}
+
+.zip-upload-box {
+  display: grid;
+  gap: .55rem;
+  padding-top: .75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.step-line {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .5rem;
+}
+
+.step-line span {
+  min-height: 42px;
+  display: grid;
+  place-items: center;
+  padding: .5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  text-align: center;
+  font-weight: 800;
+}
+
+.step-line span.done {
+  border-color: #0f766e;
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.step-line span.active {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
 .queue-summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -442,5 +491,9 @@ progress::-moz-progress-bar {
   .queue-actions button,
   .item-actions button {
     width: 100%;
+  }
+
+  .step-line {
+    grid-template-columns: 1fr;
   }
 }

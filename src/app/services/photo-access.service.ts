@@ -18,6 +18,9 @@ export interface PhotoFolder {
   id: number;
   name: string;
   description: string;
+  publicationStatus: 'rascunho' | 'processando' | 'pronto' | 'publicado' | 'arquivado';
+  activeZipJobId?: number;
+  zipReadyAt?: string;
   photos: PhotoFile[];
   createdAt: string;
 }
@@ -51,15 +54,55 @@ export interface ZipJob {
   id: number;
   uuid: string;
   folderId: number;
-  status: 'aguardando' | 'processando' | 'pronto' | 'erro' | 'expirado';
+  status: 'aguardando_upload' | 'enviando' | 'upload_concluido' | 'aguardando_zip' | 'gerando_zip' | 'pronto' | 'erro' | 'cancelado' | 'expirado';
+  sourceType?: 'photos' | 'uploaded_zip';
+  originalFilename?: string;
   totalFiles: number;
   processedFiles: number;
+  totalBytes?: number;
+  processedBytes?: number;
   percent: number;
   size: number;
+  sha256?: string;
   url?: string;
   error?: string;
   expiresAt?: string;
   createdAt: string;
+}
+
+export interface ZipStatus {
+  status: ZipJob['status'];
+  processed_files: number;
+  total_files: number;
+  processed_bytes: number;
+  total_bytes: number;
+  progress_percent: number;
+  zip_size_bytes: number;
+  original_filename?: string;
+  sha256?: string;
+  message: string;
+  error_message?: string;
+  created_at?: string;
+  started_at?: string;
+  finished_at?: string;
+}
+
+export interface ChunkUploadStatus {
+  status: string;
+  uploaded_chunks: number;
+  uploaded_chunk_numbers: number[];
+  total_chunks: number;
+  uploaded_bytes: number;
+  total_bytes: number;
+  percent: number;
+  error_message?: string;
+  zip?: ZipJob;
+}
+
+export interface StartChunkUploadResponse {
+  upload_id: string;
+  chunk_size: number;
+  uploaded_chunks: number[];
 }
 
 interface LoginResponse {
@@ -134,6 +177,66 @@ export class PhotoAccessService {
     );
   }
 
+  startChunkUpload(folderId: number, file: File): Observable<StartChunkUploadResponse> {
+    return this.http.post<StartChunkUploadResponse>(
+      `${this.apiUrl}/admin/uploads/iniciar`,
+      {
+        folder_id: folderId,
+        filename: file.name,
+        total_size: file.size,
+        total_chunks: 0,
+        upload_type: 'zip'
+      },
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  startZipUpload(folderId: number, file: File, totalChunks: number): Observable<StartChunkUploadResponse> {
+    return this.http.post<StartChunkUploadResponse>(
+      `${this.apiUrl}/admin/uploads/iniciar`,
+      {
+        folder_id: folderId,
+        filename: file.name,
+        total_size: file.size,
+        total_chunks: totalChunks,
+        upload_type: 'zip'
+      },
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  uploadChunk(uploadId: string, chunkNumber: number, chunk: Blob): Observable<HttpEvent<ChunkUploadStatus>> {
+    return this.http.post<ChunkUploadStatus>(
+      `${this.apiUrl}/admin/uploads/${uploadId}/chunks/${chunkNumber}`,
+      chunk,
+      {
+        headers: this.authHeaders(this.adminToken).set('Content-Type', 'application/octet-stream'),
+        observe: 'events',
+        reportProgress: true
+      }
+    );
+  }
+
+  getChunkUploadStatus(uploadId: string): Observable<ChunkUploadStatus> {
+    return this.http.get<ChunkUploadStatus>(`${this.apiUrl}/admin/uploads/${uploadId}/status`, {
+      headers: this.authHeaders(this.adminToken)
+    });
+  }
+
+  finalizeChunkUpload(uploadId: string): Observable<ChunkUploadStatus> {
+    return this.http.post<ChunkUploadStatus>(
+      `${this.apiUrl}/admin/uploads/${uploadId}/finalizar`,
+      {},
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  cancelChunkUpload(uploadId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/admin/uploads/${uploadId}`, {
+      headers: this.authHeaders(this.adminToken)
+    });
+  }
+
   uploadPhoto(
     folderId: number,
     sessionUuid: string,
@@ -179,6 +282,42 @@ export class PhotoAccessService {
     });
   }
 
+  getAdminZipStatus(folderId: number): Observable<ZipStatus> {
+    return this.http.get<ZipStatus>(`${this.apiUrl}/admin/folders/${folderId}/zip-status`, {
+      headers: this.authHeaders(this.adminToken)
+    });
+  }
+
+  createAdminZip(folderId: number): Observable<ZipJob> {
+    return this.http.post<ZipJob>(
+      `${this.apiUrl}/admin/folders/${folderId}/zip-jobs`,
+      {},
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  publishFolder(folderId: number): Observable<PhotoFolder> {
+    return this.http.post<PhotoFolder>(
+      `${this.apiUrl}/admin/folders/${folderId}/publish`,
+      {},
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  unpublishFolder(folderId: number): Observable<PhotoFolder> {
+    return this.http.post<PhotoFolder>(
+      `${this.apiUrl}/admin/folders/${folderId}/unpublish`,
+      {},
+      { headers: this.authHeaders(this.adminToken) }
+    );
+  }
+
+  deleteFolderZip(folderId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/admin/folders/${folderId}/zip`, {
+      headers: this.authHeaders(this.adminToken)
+    });
+  }
+
   createUser(name: string, login: string, password: string, folderId: number): Observable<PhotoUser> {
     return this.http.post<PhotoUser>(
       `${this.apiUrl}/admin/users`,
@@ -209,6 +348,10 @@ export class PhotoAccessService {
 
   zipUrl(job: ZipJob): string {
     return `${job.url ?? ''}?token=${encodeURIComponent(this.clientToken)}`;
+  }
+
+  folderDownloadUrl(folderId: number): string {
+    return `${this.apiUrl}/client/folders/${folderId}/download?token=${encodeURIComponent(this.clientToken)}`;
   }
 
   downloadPhoto(photo: PhotoFile): void {

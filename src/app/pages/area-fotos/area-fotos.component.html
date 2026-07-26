@@ -35,7 +35,7 @@
           <h2>{{ userFolderName }}</h2>
         </div>
         <div class="client-actions">
-          <button type="button" (click)="createZip()" [disabled]="!clientFolder.photos.length || zipJob?.status === 'aguardando' || zipJob?.status === 'processando'">Baixar todas</button>
+          <button type="button" (click)="downloadZip()" [disabled]="clientFolder.publicationStatus !== 'publicado'">Baixar todas as fotos</button>
           <button class="ghost" type="button" (click)="logoutClient()">Sair</button>
         </div>
       </div>
@@ -59,7 +59,8 @@
 
       <div class="gallery-note" *ngIf="clientFolder.photos.length">
         <span>{{ clientFolder.photos.length }} foto(s) disponiveis nesta pasta.</span>
-        <span>Use Baixar todas para preparar um ZIP sem travar o navegador.</span>
+        <span *ngIf="clientFolder.publicationStatus === 'publicado'">O ZIP ja esta preparado para download.</span>
+        <span *ngIf="clientFolder.publicationStatus !== 'publicado'">O album ainda esta sendo preparado.</span>
       </div>
     </div>
   </ng-container>
@@ -76,7 +77,6 @@
         <input name="adminPassword" [(ngModel)]="adminForm.password" type="password" autocomplete="current-password">
       </label>
       <button class="primary" type="submit">Entrar</button>
-      <p class="hint">Primeiro acesso: admin / mayara2026</p>
     </form>
 
     <div class="admin-area" *ngIf="adminLogged">
@@ -103,7 +103,7 @@
         </form>
 
         <div class="tool-box">
-          <h3>Enviar fotos</h3>
+          <h3>Arquivos para download</h3>
           <label>
             Pasta
             <select [(ngModel)]="uploadFolderId" name="uploadFolder">
@@ -124,6 +124,15 @@
                 <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple webkitdirectory directory (change)="addPhotosFromInput($event)">
               </label>
             </div>
+          </div>
+          <div class="zip-upload-box">
+            <strong>Ou envie um ZIP pronto</strong>
+            <label class="file-picker">
+              Selecionar ZIP
+              <input type="file" accept=".zip,application/zip,application/x-zip-compressed" (change)="selectZipFromInput($event)">
+            </label>
+            <span *ngIf="zipUpload.file">{{ zipUpload.file.name }} - {{ formatSize(zipUpload.file.size) }}</span>
+            <button class="primary" type="button" (click)="startZipUpload()" [disabled]="!zipUpload.file || zipUpload.status === 'enviando' || zipUpload.status === 'validando'">Enviar ZIP</button>
           </div>
         </div>
 
@@ -150,6 +159,57 @@
           </label>
           <button class="primary" type="submit">Criar usuario</button>
         </form>
+      </div>
+
+      <div class="zip-admin-board">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Arquivos para download</p>
+            <h2>Status do ZIP</h2>
+          </div>
+          <button type="button" (click)="refreshAdminZipStatus()">Atualizar</button>
+        </div>
+
+        <div class="step-line">
+          <span [class.done]="zipUpload.percent >= 100 || adminZipStatus?.status === 'pronto'">Upload</span>
+          <span [class.done]="zipUpload.status === 'validando' || zipUpload.status === 'pronto' || adminZipStatus?.status === 'pronto'">Validacao</span>
+          <span [class.done]="adminZipStatus?.status === 'pronto'" [class.active]="adminZipStatus?.status === 'gerando_zip'">Preparacao do ZIP</span>
+          <span [class.done]="adminZipStatus?.status === 'pronto'">Concluido</span>
+        </div>
+
+        <div class="overall-progress" *ngIf="zipUpload.file">
+          <div>
+            <strong>{{ zipUpload.percent }}%</strong>
+            <span>{{ formatSize(zipUpload.uploadedBytes) }} de {{ formatSize(zipUpload.totalBytes) }}</span>
+          </div>
+          <progress [value]="zipUpload.percent" max="100"></progress>
+          <div>
+            <span>Velocidade: {{ formatSize(zipUpload.speed) }}/s</span>
+            <span>Tempo estimado: {{ zipUpload.etaSeconds }}s</span>
+          </div>
+          <p class="item-error" *ngIf="zipUpload.error">{{ zipUpload.error }}</p>
+          <button type="button" (click)="cancelZipUpload()" [disabled]="!zipUpload.uploadId || zipUpload.status === 'pronto'">Cancelar upload</button>
+        </div>
+
+        <div class="zip-box" *ngIf="adminZipStatus">
+          <div>
+            <strong>{{ adminZipStatus.message }}</strong>
+            <span>Status: {{ adminZipStatus.status }}</span>
+            <span>Fotos processadas: {{ adminZipStatus.processed_files }} de {{ adminZipStatus.total_files }}</span>
+            <span>Progresso: {{ adminZipStatus.progress_percent }}%</span>
+            <span>Tamanho atual do ZIP: {{ formatSize(adminZipStatus.zip_size_bytes) }}</span>
+            <span *ngIf="adminZipStatus.original_filename">Arquivo: {{ adminZipStatus.original_filename }}</span>
+            <span class="item-error" *ngIf="adminZipStatus.error_message">{{ adminZipStatus.error_message }}</span>
+          </div>
+          <progress [value]="adminZipStatus.progress_percent" max="100"></progress>
+        </div>
+
+        <div class="queue-actions">
+          <button class="primary" type="button" (click)="publishSelectedFolder()" [disabled]="!canPublishSelectedFolder">Publicar para cliente</button>
+          <button type="button" (click)="unpublishSelectedFolder()" [disabled]="selectedFolder?.publicationStatus !== 'publicado'">Retirar publicacao</button>
+          <button type="button" (click)="rebuildZip()" [disabled]="!selectedFolder?.photos?.length">Refazer ZIP</button>
+          <button class="danger" type="button" (click)="deleteCurrentZip()" [disabled]="adminZipStatus?.status !== 'pronto'">Excluir ZIP antigo</button>
+        </div>
       </div>
 
       <div class="upload-board" *ngIf="uploadQueue.length">
